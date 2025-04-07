@@ -5,7 +5,7 @@ SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
 # Simulation speed
-FPS = 60
+FPS = 10
 
 # Grid
 DRAW_GRID = False

@@ -5,6 +5,7 @@ import pygame as pg
 
 from agent import Agent
 from settings import *
+from obstacles import Wall
 
 
 class Game:
@@ -32,9 +33,13 @@ class Game:
         self.all_agents = pg.sprite.Group()
         for _ in range(NUM_OF_AGENTS):
             self.agent = Agent(
-                game=self, x=random.randint(0, 40), y=random.randint(0, 40)
+                game=self, x=random.randint(0, 40), y=random.randint(10, 25)
             )
-
+        self.walls = pg.sprite.Group()
+        wall1 = Wall(self, 0, 75, color=(0, 0, 255))
+        wall2 = Wall(self, 0, SCREEN_HEIGHT-85, color=(0, 0, 255))
+        self.walls.add(wall1)
+        self.walls.add(wall2)
         self.load()
 
     def run(self):
@@ -62,6 +67,7 @@ class Game:
             self.draw_grid()
 
         self.all_agents.draw(self.screen)
+        self.walls.draw(self.screen)
 
         pg.display.flip()
 

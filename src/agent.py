@@ -11,13 +11,29 @@ class Agent(Sprite):
         Sprite.__init__(self, self.groups)
 
         self.game = game
-        self.image = pg.Surface((TILE_SIZE, TILE_SIZE))
-        self.image.fill(AGENT_COLOR)
+        self.image = pg.image.load(AGENT_IMG)
         self.rect = self.image.get_rect()
         self.x = x
         self.y = y
 
     def update(self):
-        self.x = self.x + self.game.random.randint(-1, 1)
-        self.y = self.y + self.game.random.randint(-1, 1)
+        walls = list(self.game.walls)
+
+        # Find min and max y among all walls
+        y_coords = [wall.rect.y for wall in walls]
+
+        y_min = min(y_coords)
+        y_max = max(y_coords)
+
+        # Then restrict agent movement within this boundary
+        new_x = self.x + self.game.random.randint(-1, 1)
+        new_y = self.y + self.game.random.randint(-1, 1)
+        print(new_y)
+        print(y_min, y_max)
+        # Only update if the new position is inside the wall bounds
+        if y_min < new_y * TILE_SIZE < y_max-60:
+            self.x = new_x
+            self.y = new_y
+
+        # Update pixel position for drawing
         self.rect.topleft = (self.x * TILE_SIZE, self.y * TILE_SIZE)
