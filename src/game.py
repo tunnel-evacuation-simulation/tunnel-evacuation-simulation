@@ -43,8 +43,8 @@ class Game:
         self.walls.add(wall2)
 
         self.exits = pg.sprite.Group()
-        self.exits.add(Exit(game=self, x=20, y=75))
-        self.exits.add(Exit(game=self, x=80, y=SCREEN_HEIGHT-85))
+        self.exits.add(Exit(game=self, x=EXIT_1_X, y=EXIT_1_Y))
+        self.exits.add(Exit(game=self, x=EXIT_2_X, y=EXIT_2_Y))
         self.load()
 
     def run(self):
