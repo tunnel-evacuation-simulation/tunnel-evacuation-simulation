@@ -6,6 +6,7 @@ import pygame as pg
 from agent import Agent
 from settings import *
 from obstacles import Wall
+from exit import Exit
 
 
 class Game:
@@ -36,10 +37,14 @@ class Game:
                 game=self, x=random.randint(0, 40), y=random.randint(10, 25)
             )
         self.walls = pg.sprite.Group()
-        wall1 = Wall(self, 0, 75, color=(0, 0, 255))
-        wall2 = Wall(self, 0, SCREEN_HEIGHT-85, color=(0, 0, 255))
+        wall1 = Wall(self, WALL_1_X, WALL_1_Y, color=WALL_COLOR)
+        wall2 = Wall(self, WALL_2_X, WALL_2_Y, color=WALL_COLOR)
         self.walls.add(wall1)
         self.walls.add(wall2)
+
+        self.exits = pg.sprite.Group()
+        self.exits.add(Exit(game=self, x=20, y=75))
+        self.exits.add(Exit(game=self, x=80, y=SCREEN_HEIGHT-85))
         self.load()
 
     def run(self):
@@ -68,6 +73,7 @@ class Game:
 
         self.all_agents.draw(self.screen)
         self.walls.draw(self.screen)
+        self.exits.draw(self.screen)
 
         pg.display.flip()
 

@@ -4,7 +4,7 @@ from settings import *
 
 
 class Wall(pg.sprite.Sprite):
-    def __init__(self, game, x, y, width=SCREEN_WIDTH, height=10, color=(100, 100, 100)):
+    def __init__(self, game, x, y, width=WALL_WIDTH, height=WALL_HEIGHT, color=WALL_COLOR):
         super().__init__()
         self.game = game
         self.image = pg.Surface((width, height))

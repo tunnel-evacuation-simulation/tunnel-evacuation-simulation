@@ -17,6 +17,8 @@ GRID_HEIGHT = SCREEN_HEIGHT / TILE_SIZE
 BG = (234, 219, 198)
 GRID_COLOR = (192, 137, 91)
 AGENT_COLOR = (89, 99, 172)
+WALL_COLOR = (0, 0, 255)
+EXIT_COLOR = (0, 255, 0)
 
 # Images
 BACKGROUND_IMG = "assets/road-lane.png"
@@ -24,3 +26,23 @@ AGENT_IMG = "assets/agent.png"
 
 # Simulation Parameters
 NUM_OF_AGENTS = 30
+
+# Walls
+WALL_WIDTH = SCREEN_WIDTH
+WALL_HEIGHT = 10
+# positions:
+WALL_1_X = 0
+WALL_1_Y = 75
+WALL_2_X = 0
+WALL_2_Y = SCREEN_HEIGHT - 85
+
+# Exits
+EXIT_WIDTH = 50
+EXIT_HEIGHT = WALL_HEIGHT
+# positions:
+EXIT_1_X = 20
+EXIT_1_Y = WALL_1_Y
+EXIT_2_X = 80
+EXIT_2_Y = WALL_2_Y
+
+
