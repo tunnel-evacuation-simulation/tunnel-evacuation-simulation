@@ -1,3 +1,4 @@
+import numpy as np
 import pygame as pg
 from pygame.sprite import Sprite
 
@@ -18,16 +19,51 @@ class Agent(Sprite):
     def update(self):
         walls = list(self.game.walls)
         exits = list(self.game.exits)
+        agents = list(self.game.all_agents)
 
         # Find min and max y among all walls
         y_coords = [wall.rect.y for wall in walls]
-
         y_min = min(y_coords)
         y_max = max(y_coords)
 
-        # Then restrict agent movement within this boundary
-        new_x = self.x + self.game.random.randint(-1, 1)
-        new_y = self.y + self.game.random.randint(-1, 1)
+        # Get current pixel position
+        current_pos = (self.x * TILE_SIZE, self.y * TILE_SIZE)
+
+        # Find nearest exit based on Euclidean distance
+        nearest_exit = None
+        min_dist_sq = float('inf')
+        for exit in exits:
+            exit_pos = exit.rect.center
+            dx = current_pos[0] - exit_pos[0]
+            dy = current_pos[1] - exit_pos[1]
+            dist_sq = dx * dx + dy * dy
+            if dist_sq < min_dist_sq:
+                min_dist_sq = dist_sq
+                nearest_exit = exit
+
+        # Compute direction to move toward nearest exit
+        target_x = nearest_exit.rect.centerx // TILE_SIZE
+        target_y = nearest_exit.rect.centery // TILE_SIZE
+
+        dx = 0
+        dy = 0
+        if target_x > self.x:
+            dx = 1
+        elif target_x < self.x:
+            dx = -1
+        else:
+            dx = 0
+
+        if target_y > self.y:
+            dy = 1
+        elif target_y < self.y:
+            dy = -1
+        else:
+            dy = 0
+
+        # Try to move (one step toward exit)
+        new_x = self.x + dx
+        new_y = self.y + dy
 
         # Remove agent if it reaches an exit
         for exit in exits:
@@ -35,10 +71,19 @@ class Agent(Sprite):
                 self.kill()
                 break
 
+        for agent in agents:
+            if agent != self and self.rect.colliderect(agent.rect):
+                new_x = self.x
+                new_y = self.y
+
+
         # Only update if the new position is inside the wall bounds
-        if y_min < new_y * TILE_SIZE < y_max-60:
-            self.x = new_x
+        if y_min < new_y * TILE_SIZE < y_max-GRID_HEIGHT:
             self.y = new_y
+
+        if 0 < new_x * TILE_SIZE < SCREEN_WIDTH - GRID_WIDTH:
+            self.x = new_x
+
 
         # Update pixel position for drawing
         self.rect.topleft = (self.x * TILE_SIZE, self.y * TILE_SIZE)
