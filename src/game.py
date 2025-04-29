@@ -31,11 +31,24 @@ class Game:
             self.bg_image.fill((192, 142, 55))
 
     def new_instance(self):
+        # TODO setting new instances
         self.all_agents = pg.sprite.Group()
         for _ in range(NUM_OF_AGENTS):
-            self.agent = Agent(
-                game=self, x=random.randint(0, 40), y=random.randint(10, 25)
-            )
+            is_on_another_agent = True
+            while is_on_another_agent:
+                is_on_another_agent = False
+
+                x = random.randint(0, int(SCREEN_WIDTH / TILE_SIZE) - 10)
+                y = random.randint(0, int(SCREEN_HEIGHT / TILE_SIZE) - 10)
+
+                new_agent = Agent(game=self, x=x, y=y)
+                new_agent.rect.topleft = (x * TILE_SIZE, y * TILE_SIZE)
+
+                for agent in self.all_agents:
+                    if new_agent.rect.colliderect(agent.rect):
+                        new_agent.kill()
+            self.all_agents.add(new_agent)
+
         self.walls = pg.sprite.Group()
         wall1 = Wall(self, WALL_1_X, WALL_1_Y, color=WALL_COLOR)
         wall2 = Wall(self, WALL_2_X, WALL_2_Y, color=WALL_COLOR)
