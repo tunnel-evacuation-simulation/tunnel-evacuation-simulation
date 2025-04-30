@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 import pygame as pg
 from pygame.sprite import Sprite
@@ -17,6 +19,8 @@ class Agent(Sprite):
         self.x = x
         self.y = y
     def update(self):
+        old_x = self.x
+        old_y = self.y
         walls = list(self.game.walls)
         exits = list(self.game.exits)
         agents = list(self.game.all_agents)
@@ -47,19 +51,24 @@ class Agent(Sprite):
 
         dx = 0
         dy = 0
-        if target_x > self.x:
-            dx = 1
-        elif target_x < self.x:
-            dx = -1
-        else:
-            dx = 0
 
-        if target_y > self.y:
-            dy = 1
-        elif target_y < self.y:
-            dy = -1
+        if random.randint(1,10) < 9:
+            if target_x > self.x:
+                dx = 1
+            elif target_x < self.x:
+                dx = -1
+            else:
+                dx = 0
+
+            if target_y > self.y:
+                dy = 1
+            elif target_y < self.y:
+                dy = -1
+            else:
+                dy = 0
         else:
-            dy = 0
+            dx = random.randint(-1,1)
+            dy = random.randint(-1,1)
 
         # Try to move (one step toward exit)
         new_x = self.x + dx
@@ -71,11 +80,6 @@ class Agent(Sprite):
                 self.kill()
                 break
 
-        for agent in agents:
-            if agent != self and self.rect.colliderect(agent.rect):
-                new_x = self.x
-                new_y = self.y
-
 
         # Only update if the new position is inside the wall bounds
         if y_min < new_y * TILE_SIZE < y_max-GRID_HEIGHT:
@@ -84,8 +88,16 @@ class Agent(Sprite):
         if 0 < new_x * TILE_SIZE < SCREEN_WIDTH - GRID_WIDTH:
             self.x = new_x
 
-
         # Update pixel position for drawing
         self.rect.topleft = (self.x * TILE_SIZE, self.y * TILE_SIZE)
+
+        for agent in agents:
+            if agent != self and self.rect.colliderect(agent.rect):
+                self.x = old_x
+                self.y = old_y
+                self.rect.topleft = (self.x * TILE_SIZE, self.y * TILE_SIZE)
+                break
+
+
 
 
