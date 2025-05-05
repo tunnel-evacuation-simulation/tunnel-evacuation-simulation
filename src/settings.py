@@ -30,6 +30,7 @@ NUM_OF_AGENTS = 30
 # Walls
 WALL_WIDTH = SCREEN_WIDTH
 WALL_HEIGHT = 10
+
 # positions:
 WALL_1_X = 0
 WALL_1_Y = 75
