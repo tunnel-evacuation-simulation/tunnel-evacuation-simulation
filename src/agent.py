@@ -18,6 +18,7 @@ class Agent(Sprite):
         self.rect = self.image.get_rect()
         self.x = x
         self.y = y
+
     def update(self):
         old_x = self.x
         old_y = self.y
@@ -80,6 +81,9 @@ class Agent(Sprite):
                 self.kill()
                 break
 
+        # Add check for already occupied cells
+        if (new_x, new_y) not in self.game.occupied_positions:
+            self.game.occupied_positions.discard((self.x, self.y))
 
         # Only update if the new position is inside the wall bounds
         if y_min < new_y * TILE_SIZE < y_max-GRID_HEIGHT:
@@ -87,6 +91,8 @@ class Agent(Sprite):
 
         if 0 < new_x * TILE_SIZE < SCREEN_WIDTH - GRID_WIDTH:
             self.x = new_x
+
+        self.game.occupied_positions.add((new_x, new_y))
 
         # Update pixel position for drawing
         self.rect.topleft = (self.x * TILE_SIZE, self.y * TILE_SIZE)
