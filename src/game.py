@@ -1,16 +1,16 @@
+import json
 import random
 import sys
 
 import pygame as pg
 
 from agent import Agent
-from settings import *
-from obstacles import Wall
 from exit import Exit
+from obstacles import Wall
+from settings import *
 
 
 class Game:
-
     def __init__(self):
         pg.init()
         random.seed(42)
@@ -24,7 +24,7 @@ class Game:
     def load(self):
         try:
             self.bg_image = pg.image.load(BACKGROUND_IMG)
-            print(f"Loading bg image")
+            print("Loading bg image ...")
         except Exception as e:
             print(f"Error loading image: {e}")
             self.bg_image = pg.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -33,12 +33,12 @@ class Game:
     def new_instance(self):
         self.all_agents = pg.sprite.Group()
         self.occupied_positions = set()
-        
-        for _ in range(NUM_OF_AGENTS):
-            while True:
 
-                x = random.randint(0, int(SCREEN_WIDTH / TILE_SIZE) - 10)
-                y = random.randint(10, int(SCREEN_HEIGHT / TILE_SIZE) - 10)
+        config = self._parse_simulation_config_file()
+
+        for i in range(len(config["agents"])):
+            while True:
+                x, y = config["agents"][i]["initial_position"]
 
                 if (x, y) not in self.occupied_positions:
                     self.occupied_positions.add((x, y))
@@ -46,7 +46,7 @@ class Game:
                     new_agent = Agent(game=self, x=x, y=y)
                     new_agent.rect.topleft = (x * TILE_SIZE, y * TILE_SIZE)
                     break
-            
+
             self.all_agents.add(new_agent)
 
         self.walls = pg.sprite.Group()
@@ -98,4 +98,14 @@ class Game:
             pg.draw.line(self.screen, GRID_COLOR, (x, 0), (x, SCREEN_HEIGHT))
         for y in range(0, SCREEN_HEIGHT, TILE_SIZE):
             pg.draw.line(self.screen, GRID_COLOR, (0, y), (SCREEN_WIDTH, y))
-            
+
+    def _parse_simulation_config_file(self, conf_file: str = "./conf.json") -> dict:
+        config = {}
+
+        try:
+            with open(conf_file, "r") as f:
+                config = json.load(f)
+        except FileNotFoundError as e:
+            print(e)
+
+        return config
