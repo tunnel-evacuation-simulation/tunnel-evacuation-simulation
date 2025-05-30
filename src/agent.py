@@ -82,27 +82,23 @@ class Agent(Sprite):
                 break
 
         # Add check for already occupied cells
+        # TODO check rectangle instead of position f.e. self.rect.colliderect(agent.rect)
         if (new_x, new_y) not in self.game.occupied_positions:
             self.game.occupied_positions.discard((self.x, self.y))
 
-        # Only update if the new position is inside the wall bounds
-        if y_min < new_y * TILE_SIZE < y_max-GRID_HEIGHT:
-            self.y = new_y
+            # Only update if the new position is inside the wall bounds
+            if y_min < new_y * TILE_SIZE < y_max - GRID_HEIGHT:
+                self.y = new_y
 
-        if 0 < new_x * TILE_SIZE < SCREEN_WIDTH - GRID_WIDTH:
-            self.x = new_x
+            if 0 < new_x * TILE_SIZE < SCREEN_WIDTH - GRID_WIDTH:
+                self.x = new_x
 
-        self.game.occupied_positions.add((new_x, new_y))
+            self.game.occupied_positions.add((new_x, new_y))
 
-        # Update pixel position for drawing
-        self.rect.topleft = (self.x * TILE_SIZE, self.y * TILE_SIZE)
+            # Update pixel position for drawing
+            self.rect.topleft = (self.x * TILE_SIZE, self.y * TILE_SIZE)
 
-        for agent in agents:
-            if agent != self and self.rect.colliderect(agent.rect):
-                self.x = old_x
-                self.y = old_y
-                self.rect.topleft = (self.x * TILE_SIZE, self.y * TILE_SIZE)
-                break
+
 
 
 
