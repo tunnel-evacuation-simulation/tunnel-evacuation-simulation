@@ -30,7 +30,7 @@ pip install requirements.txt
 
 5. Run the project
 ```bash
-python3 src/main.py
+python3 src/main.py -f src/simulations/example_simulation.json
 ```
 
 
