@@ -1,3 +1,4 @@
+import heapq
 import random
 
 import numpy as np
@@ -8,98 +9,138 @@ from settings import *
 
 
 class Agent(Sprite):
-    def __init__(self, game, x: int, y: int) -> None:
+    def __init__(
+        self,
+        game,
+        id: str,
+        x: int,
+        y: int,
+        speed: float,
+        panic_factor: float,
+        personality: str,
+        group_id: str | None,
+    ):
         self.groups = game.all_agents
-
         Sprite.__init__(self, self.groups)
-
-        self.game = game
         self.image = pg.image.load(AGENT_IMG)
         self.rect = self.image.get_rect()
+        self.game = game
+        self.id = id
         self.x = x
         self.y = y
+        self.speed = speed
+        self.panic_factor = panic_factor
+        self.personality = personality
+        self.group_id = group_id
+        self.path = []  
 
     def update(self):
-        old_x = self.x
-        old_y = self.y
-        walls = list(self.game.walls)
-        exits = list(self.game.exits)
-        agents = list(self.game.all_agents)
+        if random.random() > self.speed:
+            return  # Pomiń ruch w tym ticku
 
-        # Find min and max y among all walls
-        y_coords = [wall.rect.y for wall in walls]
-        y_min = min(y_coords)
-        y_max = max(y_coords)
+        if random.random() < self.panic_factor:
+            dx, dy = random.choice([-1, 0, 1]), random.choice([-1, 0, 1])
+            new_x, new_y = self.x + dx, self.y + dy
+            if self.can_move_to(new_x, new_y):
+                self.move_to(new_x, new_y)
+            return
 
-        # Get current pixel position
-        current_pos = (self.x * TILE_SIZE, self.y * TILE_SIZE)
+        target = self.get_target()
+        if target is None:
+            return
 
-        # Find nearest exit based on Euclidean distance
-        nearest_exit = None
-        min_dist_sq = float('inf')
-        for exit in exits:
-            exit_pos = exit.rect.center
-            dx = current_pos[0] - exit_pos[0]
-            dy = current_pos[1] - exit_pos[1]
-            dist_sq = dx * dx + dy * dy
-            if dist_sq < min_dist_sq:
-                min_dist_sq = dist_sq
-                nearest_exit = exit
+        # Oblicz ścieżkę jeśli brak lub cel zmienił się
+        if not self.path or self.path[-1] != (
+            target.rect.centerx // TILE_SIZE,
+            target.rect.centery // TILE_SIZE,
+        ):
+            self.path = self.calculate_path_to(target)
 
-        # Compute direction to move toward nearest exit
-        target_x = nearest_exit.rect.centerx // TILE_SIZE
-        target_y = nearest_exit.rect.centery // TILE_SIZE
+        if self.path and len(self.path) > 1:
+            next_pos = self.path[1]  # Pomijamy [0] bo to aktualna pozycja
+            if self.can_move_to(*next_pos):
+                self.move_to(*next_pos)
+                self.path.pop(0)  # Przesuwamy ścieżkę
 
-        dx = 0
-        dy = 0
-
-        if random.randint(1,10) < 9:
-            if target_x > self.x:
-                dx = 1
-            elif target_x < self.x:
-                dx = -1
-            else:
-                dx = 0
-
-            if target_y > self.y:
-                dy = 1
-            elif target_y < self.y:
-                dy = -1
-            else:
-                dy = 0
-        else:
-            dx = random.randint(-1,1)
-            dy = random.randint(-1,1)
-
-        # Try to move (one step toward exit)
-        new_x = self.x + dx
-        new_y = self.y + dy
-
-        # Remove agent if it reaches an exit
-        for exit in exits:
-            if self.rect.colliderect(exit.rect):
+        # Sprawdź kolizję z wyjściem
+        for exit in self.game.exits:
+            exit_cell = (exit.rect.centerx // TILE_SIZE, exit.rect.centery // TILE_SIZE)
+            if (self.x, self.y) == exit_cell:
                 self.kill()
                 break
 
-        # Add check for already occupied cells
-        # TODO check rectangle instead of position f.e. self.rect.colliderect(agent.rect)
-        if (new_x, new_y) not in self.game.occupied_positions:
-            self.game.occupied_positions.discard((self.x, self.y))
+    def get_target(self):
+        if self.group_id is not None:
+            leader = self.find_group_leader()
+            if leader and leader != self:
+                return leader
+        return self.find_nearest_exit()
 
-            # Only update if the new position is inside the wall bounds
-            if y_min < new_y * TILE_SIZE < y_max - GRID_HEIGHT:
-                self.y = new_y
+    def find_nearest_exit(self):
+        exits = list(self.game.exits)
+        current_pos = (self.x * TILE_SIZE, self.y * TILE_SIZE)
+        return min(
+            exits,
+            key=lambda e: abs(current_pos[0] - e.rect.centerx)
+            + abs(current_pos[1] - e.rect.centery),
+        )
 
-            if 0 < new_x * TILE_SIZE < SCREEN_WIDTH - GRID_WIDTH:
-                self.x = new_x
+    def find_group_leader(self):
+        for agent in self.game.all_agents:
+            if agent.group_id == self.group_id and agent.personality == "leader":
+                return agent
+        return None
 
-            self.game.occupied_positions.add((new_x, new_y))
+    def calculate_path_to(self, target):
+        start = (self.x, self.y)
+        goal = (target.rect.centerx // TILE_SIZE, target.rect.centery // TILE_SIZE)
+        return self.a_star(self.game.grid, start, goal)
 
-            # Update pixel position for drawing
-            self.rect.topleft = (self.x * TILE_SIZE, self.y * TILE_SIZE)
+    def a_star(self, grid, start, goal):
+        open_set = []
+        heapq.heappush(open_set, (0 + self.heuristic(start, goal), 0, start, [start]))
+        visited = set()
+        while open_set:
+            est_total, cost_so_far, current, path = heapq.heappop(open_set)
+            if current in visited:
+                continue
+            visited.add(current)
+            if current == goal:
+                return path
+            x, y = current
+            neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+            for nx, ny in neighbors:
+                if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and grid[nx][ny] == 0:
+                    heapq.heappush(
+                        open_set,
+                        (
+                            cost_so_far + 1 + self.heuristic((nx, ny), goal),
+                            cost_so_far + 1,
+                            (nx, ny),
+                            path + [(nx, ny)],
+                        ),
+                    )
+        return []
 
+    def heuristic(self, a, b):
+        return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
+    def can_move_to(self, x, y):
+        if not (
+            0 <= x * TILE_SIZE < SCREEN_WIDTH and 0 <= y * TILE_SIZE < SCREEN_HEIGHT
+        ):
+            return False
+        if (x, y) in self.game.occupied_positions:
+            return False
+        for wall in self.game.walls:
+            if wall.rect.colliderect(
+                pg.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+            ):
+                return False
+        return True
 
-
-
-
+    def move_to(self, x, y):
+        self.game.occupied_positions.discard((self.x, self.y))
+        self.x, self.y = x, y
+        self.rect.topleft = (x * TILE_SIZE, y * TILE_SIZE)
+        self.game.occupied_positions.add((x, y))
