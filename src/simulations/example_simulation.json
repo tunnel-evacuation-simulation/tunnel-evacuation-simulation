@@ -1,0 +1,93 @@
+{
+  "version": "v.0.0.1",
+  "title": "Simulation 1",
+  "author": "Jan Kowalski",
+  "number_of_agents": 5,
+  "tile_size": 30,
+  "agents": [
+    {
+      "id": "a1",
+      "initial_position": [12, 10],
+      "speed": 0.9,
+      "field_of_view": 0.8,
+      "personality": "neutral",
+      "panic_factor": 0.05,
+      "group_id": "none"
+    },
+    {
+      "id": "a2",
+      "initial_position": [10, 10],
+      "speed": 0.9,
+      "field_of_view": 0.8,
+      "personality": "neutral",
+      "panic_factor": 0.05,
+      "group_id": "none"
+    },
+    {
+      "id": "a3",
+      "initial_position": [8, 10],
+      "speed": 0.9,
+      "field_of_view": 0.8,
+      "personality": "neutral",
+      "panic_factor": 0.05,
+      "group_id": "none"
+    },
+    {
+      "id": "a4",
+      "initial_position": [8, 16],
+      "speed": 0.9,
+      "field_of_view": 0.8,
+      "personality": "neutral",
+      "panic_factor": 0.05,
+      "group_id": "none"
+    },
+    {
+      "id": "a5",
+      "initial_position": [20, 16],
+      "speed": 0.9,
+      "field_of_view": 0.8,
+      "personality": "neutral",
+      "panic_factor": 0.05,
+      "group_id": "none"
+    }
+  ],
+  "exits": [
+    {
+      "id": "ex01",
+      "initial_position": [22, 22],
+      "width": 2,
+      "height": 1,
+      "color": [0, 255, 0]
+    },
+    {
+      "id": "ex02",
+      "initial_position": [22, 1],
+      "width": 2,
+      "height": 1,
+      "color": [0, 255, 0]
+    }
+  ],
+  "walls": [
+    {
+      "id": "w1",
+      "initial_position": [0, 0],
+      "width": 44,
+      "height": 1,
+      "color": [0, 0, 0]
+    },
+    {
+      "id": "w2",
+      "initial_position": [0, 23],
+      "width": 44,
+      "height": 1,
+      "color": [0, 0, 0]
+    },
+    {
+      "id": "w3",
+      "initial_position": [0, 11],
+      "width": 44,
+      "height": 2,
+      "color": [0, 0, 0]
+    }
+  ]
+}

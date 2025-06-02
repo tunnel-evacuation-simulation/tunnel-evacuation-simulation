@@ -1,22 +1,27 @@
+import json
 import random
 import sys
+from os import error
 
+import numpy as np
 import pygame as pg
 
 from agent import Agent
-from settings import *
-from obstacles import Wall
 from exit import Exit
+from obstacles import Wall
+from settings import TITLE, SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_IMG, FPS, DRAW_GRID, GRID_COLOR, TILE_SIZE
 
 
 class Game:
-
-    def __init__(self):
+    def __init__(self, simulation_file: str, output_path: str):
         pg.init()
         random.seed(42)
 
         self.screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pg.display.set_caption(TITLE)
+
+        self.simulation_file_path = simulation_file
+        self.output_file_path = output_path
 
         self.clock = pg.time.Clock()
         self.random = random
@@ -24,40 +29,93 @@ class Game:
     def load(self):
         try:
             self.bg_image = pg.image.load(BACKGROUND_IMG)
-            print(f"Loading bg image")
+            print("Loading bg image")
         except Exception as e:
             print(f"Error loading image: {e}")
             self.bg_image = pg.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            self.bg_image.fill((192, 142, 55))
+            self.bg_image.fill((51, 52, 70))
 
     def new_instance(self):
         self.all_agents = pg.sprite.Group()
         self.occupied_positions = set()
-        
-        for _ in range(NUM_OF_AGENTS):
-            while True:
 
-                x = random.randint(0, int(SCREEN_WIDTH / TILE_SIZE) - 10)
-                y = random.randint(10, int(SCREEN_HEIGHT / TILE_SIZE) - 10)
+        try:
+            with open(self.simulation_file_path, "r") as sim:
+                f = json.load(sim)
 
-                if (x, y) not in self.occupied_positions:
-                    self.occupied_positions.add((x, y))
+                tile_size = f["tile_size"]
 
-                    new_agent = Agent(game=self, x=x, y=y)
-                    new_agent.rect.topleft = (x * TILE_SIZE, y * TILE_SIZE)
-                    break
-            
-            self.all_agents.add(new_agent)
+                self.grid = [
+                    [0 for _ in range(SCREEN_HEIGHT // tile_size)]
+                    for _ in range(SCREEN_WIDTH // tile_size)
+                ]
 
-        self.walls = pg.sprite.Group()
-        wall1 = Wall(self, WALL_1_X, WALL_1_Y, color=WALL_COLOR)
-        wall2 = Wall(self, WALL_2_X, WALL_2_Y, color=WALL_COLOR)
-        self.walls.add(wall1)
-        self.walls.add(wall2)
+                for agent_data in f["agents"]:
+                    id = agent_data["id"]
+                    position = agent_data["initial_position"]
+                    speed = agent_data["speed"]
+                    panic_factor = agent_data["panic_factor"]
+                    personality = agent_data["personality"]
+                    group_id = agent_data["group_id"]
 
-        self.exits = pg.sprite.Group()
-        self.exits.add(Exit(game=self, x=EXIT_1_X, y=EXIT_1_Y))
-        self.exits.add(Exit(game=self, x=EXIT_2_X, y=EXIT_2_Y))
+                    if (position[0], position[1]) not in self.occupied_positions:
+                        new_agent = Agent(
+                            game=self,
+                            id=id,
+                            x=position[0],
+                            y=position[1],
+                            speed=speed,
+                            panic_factor=panic_factor,
+                            personality=personality,
+                            group_id=group_id,
+                        )
+
+                        new_agent.rect.topleft = (
+                            position[0] * tile_size,
+                            position[1] * tile_size,
+                        )
+
+                        self.all_agents.add(new_agent)
+                    else:
+                        return
+
+            self.walls = pg.sprite.Group()
+            for wall in f["walls"]:
+                wall_x, wall_y = wall["initial_position"]
+                wall_width = wall["width"]
+                wall_height = wall["height"]
+                wall_color = wall["color"]
+
+                new_wall = Wall(
+                    self,
+                    wall_x * tile_size,
+                    wall_y * tile_size,
+                    wall_width * tile_size,
+                    wall_height * tile_size,
+                    wall_color,
+                )
+                self.walls.add(new_wall)
+
+            self.exits = pg.sprite.Group()
+            for exit in f["exits"]:
+                exit_x, exit_y = exit["initial_position"]
+                exit_width = exit["width"]
+                exit_height = exit["height"]
+                exit_color = exit["color"]
+
+                new_exit = Exit(
+                    self,
+                    exit_x * tile_size,
+                    exit_y * tile_size,
+                    exit_width * tile_size,
+                    exit_height * tile_size,
+                    exit_color,
+                )
+                self.exits.add(new_exit)
+
+        except FileNotFoundError as err:
+            return f"Could not find {self.simulation_file_path} file.\nMake sure the file exists in the correct location: {err}"
+
         self.load()
 
     def run(self):
@@ -88,6 +146,16 @@ class Game:
         self.walls.draw(self.screen)
         self.exits.draw(self.screen)
 
+        for agent in self.all_agents:
+            if agent.path:
+                for pos in agent.path:
+                    rect = pg.Rect(
+                        pos[0] * TILE_SIZE + TILE_SIZE // 4,
+                        pos[1] * TILE_SIZE + TILE_SIZE // 4,
+                        TILE_SIZE // 2,
+                        TILE_SIZE // 2,
+                    )
+                    pg.draw.rect(self.screen, (0, 0, 255), rect)
         pg.display.flip()
 
     def update(self):
@@ -98,4 +166,3 @@ class Game:
             pg.draw.line(self.screen, GRID_COLOR, (x, 0), (x, SCREEN_HEIGHT))
         for y in range(0, SCREEN_HEIGHT, TILE_SIZE):
             pg.draw.line(self.screen, GRID_COLOR, (0, y), (SCREEN_WIDTH, y))
-            

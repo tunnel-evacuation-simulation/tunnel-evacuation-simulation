@@ -4,7 +4,7 @@ from settings import *
 
 
 class Wall(pg.sprite.Sprite):
-    def __init__(self, game, x, y, width=WALL_WIDTH, height=WALL_HEIGHT, color=WALL_COLOR):
+    def __init__(self, game, x: int, y: int, width: int, height: int, color: list[int]):
         super().__init__()
         self.game = game
         self.image = pg.Surface((width, height))
@@ -14,5 +14,4 @@ class Wall(pg.sprite.Sprite):
         self.rect.y = y
 
     def update(self):
-        # For static walls, this might not do anything
         pass

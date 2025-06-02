@@ -4,7 +4,7 @@ from settings import *
 
 
 class Exit(pg.sprite.Sprite):
-    def __init__(self, game, x, y, width=EXIT_WIDTH, height=EXIT_HEIGHT, color=EXIT_COLOR):
+    def __init__(self, game, x: int, y: int, width: int, height: int, color: list[int]):
         super().__init__()
         self.game = game
         self.image = pg.Surface((width, height))
