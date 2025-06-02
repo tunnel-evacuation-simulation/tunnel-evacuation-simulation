@@ -1,0 +1,334 @@
+{
+  "version": "v.0.0.2",
+  "title": "Advanced Tunnel Evacuation",
+  "author": "Marcin Z., Jakub K.",
+  "number_of_agents": 30,
+  "tile_size": 30,
+  "show_grid": false,
+  "show_agent_paths": true,
+  "agents": [
+    {
+      "id": "a1",
+      "initial_position": [5, 5],
+      "speed": 0.8,
+      "field_of_view": 0.7,
+      "personality": "leader",
+      "panic_factor": 0.1,
+      "group_id": "g1"
+    },
+    {
+      "id": "a2",
+      "initial_position": [6, 6],
+      "speed": 0.6,
+      "field_of_view": 0.9,
+      "personality": "follower",
+      "panic_factor": 0.2,
+      "group_id": "g1"
+    },
+    {
+      "id": "a3",
+      "initial_position": [7, 5],
+      "speed": 0.7,
+      "field_of_view": 0.8,
+      "personality": "follower",
+      "panic_factor": 0.15,
+      "group_id": "g1"
+    },
+    {
+      "id": "a4",
+      "initial_position": [20, 5],
+      "speed": 0.9,
+      "field_of_view": 0.9,
+      "personality": "leader",
+      "panic_factor": 0.05,
+      "group_id": "g2"
+    },
+    {
+      "id": "a5",
+      "initial_position": [21, 6],
+      "speed": 0.7,
+      "field_of_view": 0.7,
+      "personality": "follower",
+      "panic_factor": 0.1,
+      "group_id": "g2"
+    },
+    {
+      "id": "a6",
+      "initial_position": [22, 5],
+      "speed": 0.6,
+      "field_of_view": 0.8,
+      "personality": "follower",
+      "panic_factor": 0.2,
+      "group_id": "g2"
+    },
+    {
+      "id": "a7",
+      "initial_position": [10, 10],
+      "speed": 0.5,
+      "field_of_view": 0.5,
+      "personality": "neutral",
+      "panic_factor": 0.3,
+      "group_id": "none"
+    },
+    {
+      "id": "a8",
+      "initial_position": [12, 10],
+      "speed": 0.4,
+      "field_of_view": 0.6,
+      "personality": "neutral",
+      "panic_factor": 0.2,
+      "group_id": "none"
+    },
+    {
+      "id": "a9",
+      "initial_position": [14, 10],
+      "speed": 0.9,
+      "field_of_view": 0.9,
+      "personality": "leader",
+      "panic_factor": 0.05,
+      "group_id": "g3"
+    },
+    {
+      "id": "a10",
+      "initial_position": [15, 14],
+      "speed": 0.6,
+      "field_of_view": 0.8,
+      "personality": "follower",
+      "panic_factor": 0.1,
+      "group_id": "g3"
+    },
+    {
+      "id": "a11",
+      "initial_position": [16, 12],
+      "speed": 0.7,
+      "field_of_view": 0.7,
+      "personality": "follower",
+      "panic_factor": 0.2,
+      "group_id": "g3"
+    },
+    {
+      "id": "a12",
+      "initial_position": [5, 15],
+      "speed": 0.5,
+      "field_of_view": 0.6,
+      "personality": "neutral",
+      "panic_factor": 0.3,
+      "group_id": "none"
+    },
+    {
+      "id": "a13",
+      "initial_position": [6, 16],
+      "speed": 0.8,
+      "field_of_view": 0.9,
+      "personality": "neutral",
+      "panic_factor": 0.1,
+      "group_id": "none"
+    },
+    {
+      "id": "a14",
+      "initial_position": [7, 15],
+      "speed": 0.6,
+      "field_of_view": 0.8,
+      "personality": "neutral",
+      "panic_factor": 0.2,
+      "group_id": "none"
+    },
+    {
+      "id": "a15",
+      "initial_position": [20, 15],
+      "speed": 0.9,
+      "field_of_view": 0.7,
+      "personality": "leader",
+      "panic_factor": 0.05,
+      "group_id": "g2"
+    },
+    {
+      "id": "a16",
+      "initial_position": [21, 16],
+      "speed": 0.7,
+      "field_of_view": 0.8,
+      "personality": "follower",
+      "panic_factor": 0.1,
+      "group_id": "g2"
+    },
+    {
+      "id": "a17",
+      "initial_position": [22, 15],
+      "speed": 0.6,
+      "field_of_view": 0.9,
+      "personality": "follower",
+      "panic_factor": 0.2,
+      "group_id": "g2"
+    },
+    {
+      "id": "a18",
+      "initial_position": [10, 5],
+      "speed": 0.7,
+      "field_of_view": 0.6,
+      "personality": "neutral",
+      "panic_factor": 0.3,
+      "group_id": "none"
+    },
+    {
+      "id": "a19",
+      "initial_position": [11, 6],
+      "speed": 0.8,
+      "field_of_view": 0.9,
+      "personality": "neutral",
+      "panic_factor": 0.2,
+      "group_id": "none"
+    },
+    {
+      "id": "a20",
+      "initial_position": [12, 5],
+      "speed": 0.5,
+      "field_of_view": 0.7,
+      "personality": "neutral",
+      "panic_factor": 0.15,
+      "group_id": "none"
+    },
+    {
+      "id": "a21",
+      "initial_position": [5, 20],
+      "speed": 0.6,
+      "field_of_view": 0.8,
+      "personality": "leader",
+      "panic_factor": 0.1,
+      "group_id": "g1"
+    },
+    {
+      "id": "a22",
+      "initial_position": [6, 21],
+      "speed": 0.7,
+      "field_of_view": 0.7,
+      "personality": "follower",
+      "panic_factor": 0.2,
+      "group_id": "g1"
+    },
+    {
+      "id": "a23",
+      "initial_position": [7, 20],
+      "speed": 0.5,
+      "field_of_view": 0.9,
+      "personality": "follower",
+      "panic_factor": 0.15,
+      "group_id": "g1"
+    },
+    {
+      "id": "a24",
+      "initial_position": [20, 20],
+      "speed": 0.8,
+      "field_of_view": 0.7,
+      "personality": "leader",
+      "panic_factor": 0.05,
+      "group_id": "g3"
+    },
+    {
+      "id": "a25",
+      "initial_position": [21, 21],
+      "speed": 0.6,
+      "field_of_view": 0.8,
+      "personality": "follower",
+      "panic_factor": 0.1,
+      "group_id": "g3"
+    },
+    {
+      "id": "a26",
+      "initial_position": [22, 20],
+      "speed": 0.7,
+      "field_of_view": 0.9,
+      "personality": "follower",
+      "panic_factor": 0.2,
+      "group_id": "g3"
+    },
+    {
+      "id": "a27",
+      "initial_position": [15, 15],
+      "speed": 0.9,
+      "field_of_view": 0.9,
+      "personality": "neutral",
+      "panic_factor": 0.05,
+      "group_id": "none"
+    },
+    {
+      "id": "a28",
+      "initial_position": [16, 16],
+      "speed": 0.5,
+      "field_of_view": 0.6,
+      "personality": "neutral",
+      "panic_factor": 0.3,
+      "group_id": "none"
+    },
+    {
+      "id": "a29",
+      "initial_position": [17, 17],
+      "speed": 0.6,
+      "field_of_view": 0.7,
+      "personality": "neutral",
+      "panic_factor": 0.2,
+      "group_id": "none"
+    },
+    {
+      "id": "a30",
+      "initial_position": [18, 18],
+      "speed": 0.7,
+      "field_of_view": 0.8,
+      "personality": "neutral",
+      "panic_factor": 0.1,
+      "group_id": "none"
+    }
+  ],
+  "exits": [
+    {
+      "id": "ex1",
+      "initial_position": [11, 1],
+      "width": 2,
+      "height": 1,
+      "color": [255, 255, 255]
+    },
+    {
+      "id": "ex2",
+      "initial_position": [33, 1],
+      "width": 2,
+      "height": 1,
+      "color": [255, 255, 255]
+    },
+    {
+      "id": "ex3",
+      "initial_position": [11, 22],
+      "width": 2,
+      "height": 1,
+      "color": [255, 255, 255]
+    },
+    {
+      "id": "ex4",
+      "initial_position": [33, 22],
+      "width": 2,
+      "height": 1,
+      "color": [255, 255, 255]
+    }
+  ],
+  "walls": [
+    {
+      "id": "w1",
+      "initial_position": [0, 11],
+      "width": 44,
+      "height": 2,
+      "color": [0, 0, 0]
+    },
+    {
+      "id": "w2",
+      "initial_position": [0, 0],
+      "width": 44,
+      "height": 1,
+      "color": [0, 0, 0]
+    },
+    {
+      "id": "w3",
+      "initial_position": [0, 23],
+      "width": 44,
+      "height": 1,
+      "color": [0, 0, 0]
+    }
+  ]
+}

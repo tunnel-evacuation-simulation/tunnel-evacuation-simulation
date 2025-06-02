@@ -32,7 +32,7 @@ class Agent(Sprite):
         self.panic_factor = panic_factor
         self.personality = personality
         self.group_id = group_id
-        self.path = []  
+        self.path = []
 
     def update(self):
         if random.random() > self.speed:
@@ -46,10 +46,10 @@ class Agent(Sprite):
             return
 
         target = self.get_target()
+
         if target is None:
             return
 
-        # Oblicz ścieżkę jeśli brak lub cel zmienił się
         if not self.path or self.path[-1] != (
             target.rect.centerx // self.game.tile_size,
             target.rect.centery // self.game.tile_size,
@@ -57,17 +57,21 @@ class Agent(Sprite):
             self.path = self.calculate_path_to(target)
 
         if self.path and len(self.path) > 1:
-            next_pos = self.path[1]  # Pomijamy [0] bo to aktualna pozycja
+            next_pos = self.path[1]
             if self.can_move_to(*next_pos):
                 self.move_to(*next_pos)
-                self.path.pop(0)  # Przesuwamy ścieżkę
+                self.path.pop(0)
 
-        # Sprawdź kolizję z wyjściem
+        # Collision check with the exit
         for exit in self.game.exits:
-            exit_cell = (exit.rect.centerx // self.game.tile_size, exit.rect.centery // self.game.tile_size)
+            exit_cell = (
+                exit.rect.centerx // self.game.tile_size,
+                exit.rect.centery // self.game.tile_size,
+            )
+
             if (self.x, self.y) == exit_cell:
                 self.kill()
-                break
+                return
 
     def get_target(self):
         if self.group_id is not None:
@@ -93,7 +97,10 @@ class Agent(Sprite):
 
     def calculate_path_to(self, target):
         start = (self.x, self.y)
-        goal = (target.rect.centerx // self.game.tile_size, target.rect.centery // self.game.tile_size)
+        goal = (
+            target.rect.centerx // self.game.tile_size,
+            target.rect.centery // self.game.tile_size,
+        )
         return self.a_star(self.game.grid, start, goal)
 
     def a_star(self, grid, start, goal):
@@ -127,14 +134,20 @@ class Agent(Sprite):
 
     def can_move_to(self, x, y):
         if not (
-            0 <= x * self.game.tile_size < SCREEN_WIDTH and 0 <= y * self.game.tile_size < SCREEN_HEIGHT
+            0 <= x * self.game.tile_size < SCREEN_WIDTH
+            and 0 <= y * self.game.tile_size < SCREEN_HEIGHT
         ):
             return False
         if (x, y) in self.game.occupied_positions:
             return False
         for wall in self.game.walls:
             if wall.rect.colliderect(
-                pg.Rect(x * self.game.tile_size, y * self.game.tile_size, self.game.tile_size, self.game.tile_size)
+                pg.Rect(
+                    x * self.game.tile_size,
+                    y * self.game.tile_size,
+                    self.game.tile_size,
+                    self.game.tile_size,
+                )
             ):
                 return False
         return True
@@ -144,3 +157,7 @@ class Agent(Sprite):
         self.x, self.y = x, y
         self.rect.topleft = (x * self.game.tile_size, y * self.game.tile_size)
         self.game.occupied_positions.add((x, y))
+
+    def kill(self):
+        self.game.occupied_positions.discard((self.x, self.y))
+        super().kill()

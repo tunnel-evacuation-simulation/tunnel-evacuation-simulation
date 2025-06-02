@@ -9,8 +9,19 @@ if __name__ == "__main__":
         epilog="Created by @kubijaku and @MarcinZ20",
     )
 
-    parser.add_argument("-f", "--File", required=True, help="Simulation file")
-    parser.add_argument("-o", "--Output", help="Output file path")
+    parser.add_argument(
+        "-f",
+        "--File",
+        required=True,
+        help="Simulation file path with simulation parameters",
+    )
+
+    parser.add_argument(
+        "-o",
+        "--Output",
+        required=True,
+        help="Output file name that will appear in src/output/",
+    )
 
     args = parser.parse_args()
 

@@ -1,4 +1,7 @@
+import csv
+import datetime
 import json
+import os
 import random
 import sys
 from os import error
@@ -9,10 +12,7 @@ import pygame as pg
 from agent import Agent
 from exit import Exit
 from obstacles import Wall
-from settings import SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_IMG, FPS, DRAW_GRID, GRID_COLOR
-import csv
-import datetime
-
+from settings import BACKGROUND_IMG, FPS, GRID_COLOR, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
 class Game:
@@ -35,30 +35,26 @@ class Game:
         self.clock = pg.time.Clock()
         self.random = random
 
-
-
     def initSettings(self, simulation_file: str):
         with open(simulation_file, "r") as sim:
             f = json.load(sim)
 
             self.tile_size = f["tile_size"]
             self.title = f["title"]
+            self.show_grid = f["show_grid"]
+            self.show_agent_paths = f["show_agent_paths"]
 
     def init_output(self, output_file: str):
         """
         Inits the output file with the first row which includes: timestamp, agent_id, x, y
         """
-        timestamp = datetime.datetime.now().isoformat()
-        print(datetime.datetime.now().isoformat())
-
         try:
-            with open(output_file, mode='w', newline='') as file:
+            with open(f"src/output/{output_file}", mode="w", newline="") as file:
                 writer = csv.writer(file)
-                header = ['timestamp']
+                header = ["timestamp"]
                 for agent in self.all_agents:
-                    header.append(f'{agent.id}')
+                    header.append(f"{agent.id}")
                 writer.writerow(header)
-
 
         except FileNotFoundError as err:
             return f"Could not find {self.output_file_path} file.\nMake sure the file exists in the correct location: {err}"
@@ -66,7 +62,6 @@ class Game:
     def load(self):
         try:
             self.bg_image = pg.image.load(BACKGROUND_IMG)
-            print("Loading bg image")
         except Exception as e:
             print(f"Error loading image: {e}")
             self.bg_image = pg.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -173,24 +168,35 @@ class Game:
             self.draw()
             self.write_output(self.output_file_path)
 
+        if not self.playing:
+            font = pg.font.SysFont(None, 48)
+            text = font.render("Simulation has ended", True, (255, 0, 0))
+            self.screen.blit(
+                text, (SCREEN_WIDTH // 2 - text.get_width() // 2, SCREEN_HEIGHT // 2)
+            )
+            pg.display.flip()
+            pg.time.wait(3000)
+            self.quit()
+
     def write_output(self, output_file):
         """
         Writes the current timestamp and position of each agent to a CSV file.
         Each row includes: timestamp, agent_id, x, y
         """
+
+        if not os.path.exists("src/output/"):
+            os.mkdir("src/output/")
+
         timestamp = datetime.datetime.now().strftime("%X")
-        print(datetime.datetime.now().isoformat())
 
         try:
-            with open(output_file, mode='a', newline='') as file:
+            with open(f"src/output/{output_file}", mode="a", newline="") as file:
                 writer = csv.writer(file)
 
                 row = [timestamp]
                 for agent in self.all_agents:
-                    row.append(f'({agent.x}; {agent.y})')  # values as strings in brackets
+                    row.append(f"({agent.x}; {agent.y})")
                 writer.writerow(row)
-
-
 
         except FileNotFoundError as err:
             return f"Could not find {self.output_file_path} file.\nMake sure the file exists in the correct location: {err}"
@@ -207,27 +213,30 @@ class Game:
     def draw(self):
         self.screen.blit(self.bg_image, (0, 0))
 
-        if DRAW_GRID:
+        if self.show_grid:
             self.draw_grid()
 
         self.all_agents.draw(self.screen)
         self.walls.draw(self.screen)
         self.exits.draw(self.screen)
 
-        for agent in self.all_agents:
-            if agent.path:
-                for pos in agent.path:
-                    rect = pg.Rect(
-                        pos[0] * self.tile_size + self.tile_size // 4,
-                        pos[1] * self.tile_size + self.tile_size // 4,
-                        self.tile_size // 2,
-                        self.tile_size // 2,
-                    )
-                    pg.draw.rect(self.screen, (0, 0, 255), rect)
+        if self.show_agent_paths:
+            for agent in self.all_agents:
+                if agent.path:
+                    for pos in agent.path:
+                        center_x = pos[0] * self.tile_size + self.tile_size // 2
+                        center_y = pos[1] * self.tile_size + self.tile_size // 2
+                        radius = self.tile_size // 4
+                        pg.draw.circle(
+                            self.screen, (0, 0, 255), (center_x, center_y), radius
+                        )
         pg.display.flip()
 
     def update(self):
         self.all_agents.update()
+
+        if len(self.all_agents) == 0:
+            self.playing = False
 
     def draw_grid(self):
         for x in range(0, SCREEN_WIDTH, self.tile_size):
