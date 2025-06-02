@@ -51,8 +51,8 @@ class Agent(Sprite):
 
         # Oblicz ścieżkę jeśli brak lub cel zmienił się
         if not self.path or self.path[-1] != (
-            target.rect.centerx // TILE_SIZE,
-            target.rect.centery // TILE_SIZE,
+            target.rect.centerx // self.game.tile_size,
+            target.rect.centery // self.game.tile_size,
         ):
             self.path = self.calculate_path_to(target)
 
@@ -64,7 +64,7 @@ class Agent(Sprite):
 
         # Sprawdź kolizję z wyjściem
         for exit in self.game.exits:
-            exit_cell = (exit.rect.centerx // TILE_SIZE, exit.rect.centery // TILE_SIZE)
+            exit_cell = (exit.rect.centerx // self.game.tile_size, exit.rect.centery // self.game.tile_size)
             if (self.x, self.y) == exit_cell:
                 self.kill()
                 break
@@ -78,7 +78,7 @@ class Agent(Sprite):
 
     def find_nearest_exit(self):
         exits = list(self.game.exits)
-        current_pos = (self.x * TILE_SIZE, self.y * TILE_SIZE)
+        current_pos = (self.x * self.game.tile_size, self.y * self.game.tile_size)
         return min(
             exits,
             key=lambda e: abs(current_pos[0] - e.rect.centerx)
@@ -93,7 +93,7 @@ class Agent(Sprite):
 
     def calculate_path_to(self, target):
         start = (self.x, self.y)
-        goal = (target.rect.centerx // TILE_SIZE, target.rect.centery // TILE_SIZE)
+        goal = (target.rect.centerx // self.game.tile_size, target.rect.centery // self.game.tile_size)
         return self.a_star(self.game.grid, start, goal)
 
     def a_star(self, grid, start, goal):
@@ -127,14 +127,14 @@ class Agent(Sprite):
 
     def can_move_to(self, x, y):
         if not (
-            0 <= x * TILE_SIZE < SCREEN_WIDTH and 0 <= y * TILE_SIZE < SCREEN_HEIGHT
+            0 <= x * self.game.tile_size < SCREEN_WIDTH and 0 <= y * self.game.tile_size < SCREEN_HEIGHT
         ):
             return False
         if (x, y) in self.game.occupied_positions:
             return False
         for wall in self.game.walls:
             if wall.rect.colliderect(
-                pg.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+                pg.Rect(x * self.game.tile_size, y * self.game.tile_size, self.game.tile_size, self.game.tile_size)
             ):
                 return False
         return True
@@ -142,5 +142,5 @@ class Agent(Sprite):
     def move_to(self, x, y):
         self.game.occupied_positions.discard((self.x, self.y))
         self.x, self.y = x, y
-        self.rect.topleft = (x * TILE_SIZE, y * TILE_SIZE)
+        self.rect.topleft = (x * self.game.tile_size, y * self.game.tile_size)
         self.game.occupied_positions.add((x, y))

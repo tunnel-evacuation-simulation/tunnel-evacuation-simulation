@@ -9,22 +9,35 @@ import pygame as pg
 from agent import Agent
 from exit import Exit
 from obstacles import Wall
-from settings import TITLE, SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_IMG, FPS, DRAW_GRID, GRID_COLOR, TILE_SIZE
+from settings import SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_IMG, FPS, DRAW_GRID, GRID_COLOR
 
 
 class Game:
     def __init__(self, simulation_file: str, output_path: str):
+        self.title = str()
+        self.tile_size = str()
+        self.initSettings(simulation_file)
+
         pg.init()
         random.seed(42)
 
         self.screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pg.display.set_caption(TITLE)
+        pg.display.set_caption(self.title)
 
         self.simulation_file_path = simulation_file
         self.output_file_path = output_path
 
         self.clock = pg.time.Clock()
         self.random = random
+
+
+
+    def initSettings(self, simulation_file: str):
+        with open(simulation_file, "r") as sim:
+            f = json.load(sim)
+
+            self.tile_size = f["tile_size"]
+            self.title = f["title"]
 
     def load(self):
         try:
@@ -35,7 +48,7 @@ class Game:
             self.bg_image = pg.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
             self.bg_image.fill((51, 52, 70))
 
-    def new_instance(self):
+    def init_agents(self):
         self.all_agents = pg.sprite.Group()
         self.occupied_positions = set()
 
@@ -43,11 +56,9 @@ class Game:
             with open(self.simulation_file_path, "r") as sim:
                 f = json.load(sim)
 
-                tile_size = f["tile_size"]
-
                 self.grid = [
-                    [0 for _ in range(SCREEN_HEIGHT // tile_size)]
-                    for _ in range(SCREEN_WIDTH // tile_size)
+                    [0 for _ in range(SCREEN_HEIGHT // self.tile_size)]
+                    for _ in range(SCREEN_WIDTH // self.tile_size)
                 ]
 
                 for agent_data in f["agents"]:
@@ -71,52 +82,61 @@ class Game:
                         )
 
                         new_agent.rect.topleft = (
-                            position[0] * tile_size,
-                            position[1] * tile_size,
+                            position[0] * self.tile_size,
+                            position[1] * self.tile_size,
                         )
 
                         self.all_agents.add(new_agent)
-                    else:
-                        return
-
-            self.walls = pg.sprite.Group()
-            for wall in f["walls"]:
-                wall_x, wall_y = wall["initial_position"]
-                wall_width = wall["width"]
-                wall_height = wall["height"]
-                wall_color = wall["color"]
-
-                new_wall = Wall(
-                    self,
-                    wall_x * tile_size,
-                    wall_y * tile_size,
-                    wall_width * tile_size,
-                    wall_height * tile_size,
-                    wall_color,
-                )
-                self.walls.add(new_wall)
-
-            self.exits = pg.sprite.Group()
-            for exit in f["exits"]:
-                exit_x, exit_y = exit["initial_position"]
-                exit_width = exit["width"]
-                exit_height = exit["height"]
-                exit_color = exit["color"]
-
-                new_exit = Exit(
-                    self,
-                    exit_x * tile_size,
-                    exit_y * tile_size,
-                    exit_width * tile_size,
-                    exit_height * tile_size,
-                    exit_color,
-                )
-                self.exits.add(new_exit)
-
         except FileNotFoundError as err:
             return f"Could not find {self.simulation_file_path} file.\nMake sure the file exists in the correct location: {err}"
 
-        self.load()
+    def init_obstacles(self):
+        try:
+            with open(self.simulation_file_path, "r") as sim:
+                f = json.load(sim)
+
+                self.walls = pg.sprite.Group()
+                for wall in f["walls"]:
+                    wall_x, wall_y = wall["initial_position"]
+                    wall_width = wall["width"]
+                    wall_height = wall["height"]
+                    wall_color = wall["color"]
+
+                    new_wall = Wall(
+                        self,
+                        wall_x * self.tile_size,
+                        wall_y * self.tile_size,
+                        wall_width * self.tile_size,
+                        wall_height * self.tile_size,
+                        wall_color,
+                    )
+                    self.walls.add(new_wall)
+        except FileNotFoundError as err:
+            return f"Could not find {self.simulation_file_path} file.\nMake sure the file exists in the correct location: {err}"
+
+    def init_exits(self):
+        try:
+            with open(self.simulation_file_path, "r") as sim:
+                f = json.load(sim)
+                self.exits = pg.sprite.Group()
+                for exit in f["exits"]:
+                    exit_x, exit_y = exit["initial_position"]
+                    exit_width = exit["width"]
+                    exit_height = exit["height"]
+                    exit_color = exit["color"]
+
+                    new_exit = Exit(
+                        self,
+                        exit_x * self.tile_size,
+                        exit_y * self.tile_size,
+                        exit_width * self.tile_size,
+                        exit_height * self.tile_size,
+                        exit_color,
+                    )
+                    self.exits.add(new_exit)
+
+        except FileNotFoundError as err:
+            return f"Could not find {self.simulation_file_path} file.\nMake sure the file exists in the correct location: {err}"
 
     def run(self):
         self.playing = True
@@ -150,10 +170,10 @@ class Game:
             if agent.path:
                 for pos in agent.path:
                     rect = pg.Rect(
-                        pos[0] * TILE_SIZE + TILE_SIZE // 4,
-                        pos[1] * TILE_SIZE + TILE_SIZE // 4,
-                        TILE_SIZE // 2,
-                        TILE_SIZE // 2,
+                        pos[0] * self.tile_size + self.tile_size // 4,
+                        pos[1] * self.tile_size + self.tile_size // 4,
+                        self.tile_size // 2,
+                        self.tile_size // 2,
                     )
                     pg.draw.rect(self.screen, (0, 0, 255), rect)
         pg.display.flip()
@@ -162,7 +182,7 @@ class Game:
         self.all_agents.update()
 
     def draw_grid(self):
-        for x in range(0, SCREEN_WIDTH, TILE_SIZE):
+        for x in range(0, SCREEN_WIDTH, self.tile_size):
             pg.draw.line(self.screen, GRID_COLOR, (x, 0), (x, SCREEN_HEIGHT))
-        for y in range(0, SCREEN_HEIGHT, TILE_SIZE):
+        for y in range(0, SCREEN_HEIGHT, self.tile_size):
             pg.draw.line(self.screen, GRID_COLOR, (0, y), (SCREEN_WIDTH, y))

@@ -1,12 +1,9 @@
-TITLE = "Tunnel Evacuation Simulation"
-
 # Screen size
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
 # Simulation speed
 FPS = 10
-TILE_SIZE = 30
 
 # Grid
 DRAW_GRID = True 

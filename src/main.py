@@ -17,5 +17,8 @@ if __name__ == "__main__":
     game = Game(args.File, args.Output)
 
     while True:
-        game.new_instance()
+        game.init_agents()
+        game.init_obstacles()
+        game.init_exits()
+        game.load()
         game.run()
