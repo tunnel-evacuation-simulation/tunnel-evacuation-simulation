@@ -10,10 +10,15 @@ from agent import Agent
 from exit import Exit
 from obstacles import Wall
 from settings import SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_IMG, FPS, DRAW_GRID, GRID_COLOR
+import csv
+import datetime
+
 
 
 class Game:
     def __init__(self, simulation_file: str, output_path: str):
+        self.occupied_positions = set()
+        self.all_agents = pg.sprite.Group()
         self.title = str()
         self.tile_size = str()
         self.initSettings(simulation_file)
@@ -38,6 +43,25 @@ class Game:
 
             self.tile_size = f["tile_size"]
             self.title = f["title"]
+
+    def init_output(self, output_file: str):
+        """
+        Inits the output file with the first row which includes: timestamp, agent_id, x, y
+        """
+        timestamp = datetime.datetime.now().isoformat()
+        print(datetime.datetime.now().isoformat())
+
+        try:
+            with open(output_file, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                header = ['timestamp']
+                for i in range(len(self.all_agents)):
+                    header.append(f'agent{i+1}')
+                writer.writerow(header)
+
+
+        except FileNotFoundError as err:
+            return f"Could not find {self.output_file_path} file.\nMake sure the file exists in the correct location: {err}"
 
     def load(self):
         try:
@@ -140,12 +164,36 @@ class Game:
 
     def run(self):
         self.playing = True
+        self.init_output(self.output_file_path)
 
         while self.playing:
             self.time_step = self.clock.tick(FPS)
             self.events()
             self.update()
             self.draw()
+            self.write_output(self.output_file_path)
+
+    def write_output(self, output_file):
+        """
+        Writes the current timestamp and position of each agent to a CSV file.
+        Each row includes: timestamp, agent_id, x, y
+        """
+        timestamp = datetime.datetime.now().strftime("%X")
+        print(datetime.datetime.now().isoformat())
+
+        try:
+            with open(output_file, mode='a', newline='') as file:
+                writer = csv.writer(file)
+
+                row = [timestamp]
+                for agent in self.all_agents:
+                    row.append(f'({agent.x}; {agent.y})')  # values as strings in brackets
+                writer.writerow(row)
+
+
+
+        except FileNotFoundError as err:
+            return f"Could not find {self.output_file_path} file.\nMake sure the file exists in the correct location: {err}"
 
     def quit(self):
         pg.quit()
