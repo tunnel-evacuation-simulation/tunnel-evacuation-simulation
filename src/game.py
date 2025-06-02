@@ -55,8 +55,8 @@ class Game:
             with open(output_file, mode='w', newline='') as file:
                 writer = csv.writer(file)
                 header = ['timestamp']
-                for i in range(len(self.all_agents)):
-                    header.append(f'agent{i+1}')
+                for agent in self.all_agents:
+                    header.append(f'{agent.id}')
                 writer.writerow(header)
 
 
