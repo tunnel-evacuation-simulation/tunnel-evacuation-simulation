@@ -40,5 +40,5 @@ python src/main.py --h
 6. Run the project
 
 ```bash
-python3 src/main.py -f src/simulations/example_02.json -o agents_positions.csv
+python3 src/main.py -f src/simulations/example_01.json -o src/output/agents_positions.csv
 ```
