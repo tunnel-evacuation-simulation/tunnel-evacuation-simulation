@@ -49,7 +49,7 @@ class Game:
         Inits the output file with the first row which includes: timestamp, agent_id, x, y
         """
         try:
-            with open(f"src/output/{output_file}", mode="w", newline="") as file:
+            with open(f"{output_file}", mode="w", newline="") as file:
                 writer = csv.writer(file)
                 header = ["timestamp"]
                 for agent in self.all_agents:
