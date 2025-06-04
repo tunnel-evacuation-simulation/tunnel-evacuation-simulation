@@ -49,6 +49,9 @@ class Game:
         Inits the output file with the first row which includes: timestamp, agent_id, x, y
         """
         try:
+            if not os.path.exists("src/output/"):
+                os.mkdir("src/output/")
+
             with open(f"{output_file}", mode="w", newline="") as file:
                 writer = csv.writer(file)
                 header = ["timestamp"]
@@ -184,13 +187,11 @@ class Game:
         Each row includes: timestamp, agent_id, x, y
         """
 
-        if not os.path.exists("src/output/"):
-            os.mkdir("src/output/")
 
         timestamp = datetime.datetime.now().strftime("%X")
 
         try:
-            with open(f"src/output/{output_file}", mode="a", newline="") as file:
+            with open(f"{output_file}", mode="a", newline="") as file:
                 writer = csv.writer(file)
 
                 row = [timestamp]
