@@ -31,7 +31,7 @@ pip install --upgrade pip
 pip install requirements.txt
 ```
 
-5. To check aviable commands use --h flag
+5. To check available commands use --h flag
 
 ```bash
 python src/main.py --h
